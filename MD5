@@ -1,0 +1,9 @@
+2677a29c7e3108ce0a05e710f5c6f713 *DESCRIPTION
+ac583bac052f2d63c67256913ead0d58 *NAMESPACE
+48c35e6014101a6d8013490b701fc14c *R/ebproject.R
+386ea09cdb80d11a83f3162ecd34cae3 *README.md
+503a68474bfc82aec18de0ab0aa91f10 *build/partial.rdb
+ad500bc3b6a0ceea0e21782f8c13d00f *inst/REFERENCES.bib
+f9636724c0275ac4bc860dd59d98cb8d *man/ebreg.Rd
+932b871c156a5c412482cd02baa6659b *tests/testthat.R
+79142627faa2a40790c3e1020a05380e *tests/testthat/test_ebproject.R
