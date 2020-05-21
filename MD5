@@ -1,9 +1,10 @@
-2677a29c7e3108ce0a05e710f5c6f713 *DESCRIPTION
+976cf437babf2499c9f11e6880d1ab4d *DESCRIPTION
 ac583bac052f2d63c67256913ead0d58 *NAMESPACE
-48c35e6014101a6d8013490b701fc14c *R/ebproject.R
-386ea09cdb80d11a83f3162ecd34cae3 *README.md
-503a68474bfc82aec18de0ab0aa91f10 *build/partial.rdb
+a59d9345695c649b9f855c354741d08c *R/ebproject.R
+e636faa93a95499cebd13be37dae7cf2 *README.md
+e96c0ebbdd0ea5cec5c488e6d013443e *build/partial.rdb
 ad500bc3b6a0ceea0e21782f8c13d00f *inst/REFERENCES.bib
-f9636724c0275ac4bc860dd59d98cb8d *man/ebreg.Rd
+7ee0716c88f06ce08d65d60d9a93e417 *man/ebreg.Rd
+37c24a338856bed33cf781077a8755c6 *man/figures/README-example-1.png
 932b871c156a5c412482cd02baa6659b *tests/testthat.R
-79142627faa2a40790c3e1020a05380e *tests/testthat/test_ebproject.R
+7ed9f7d02bf49f4829608798fa149dfa *tests/testthat/test_ebproject.R

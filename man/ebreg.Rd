@@ -4,8 +4,9 @@
 \alias{ebreg}
 \title{Implements the empirical Bayes method in high-dimensional linear model setting for inference and prediction}
 \usage{
-ebreg(y, X, XX, alpha, gam, sig2, prior = TRUE, igpar, log.f, M,
-  sample.beta = FALSE, pred = FALSE, conf.level = 0.95)
+ebreg(y, X, XX, standardized = TRUE, alpha, gam, sig2, prior = TRUE,
+  igpar, log.f, M, sample.beta = FALSE, pred = FALSE,
+  conf.level = 0.95)
 }
 \arguments{
 \item{y}{vector of response variables for regression}
@@ -13,6 +14,8 @@ ebreg(y, X, XX, alpha, gam, sig2, prior = TRUE, igpar, log.f, M,
 \item{X}{matrix of predictor variables}
 
 \item{XX}{vector to predict outcome variable, if pred=TRUE}
+
+\item{standardized}{logical. If TRUE, the data provided has already been standardized}
 
 \item{alpha}{numeric value between 0 and 1, likelihood fraction}
 
@@ -81,7 +84,8 @@ X <- matrix(rnorm(n * p), nrow=n, ncol=p)
 X.new <- matrix(rnorm(p), nrow=1, ncol=p)
 y <- as.numeric(X[, 1:s0] \%*\% beta[1:s0]) + sqrt(sig2) * rnorm(n)
 
-o<-ebreg(y, X, X.new, .99, .005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, TRUE, FALSE, .95)
+o<-ebreg(y, X, X.new, TRUE, .99, .005, NULL, FALSE, igpar=c(0.01, 4),
+log.f, M=5000, TRUE, FALSE, .95)
 
 incl.pr <- o$incl.prob
 plot(incl.pr, xlab="Variable Index", ylab="Inclusion Probability", type="h", ylim=c(0,1))

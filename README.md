@@ -49,5 +49,7 @@ X <- matrix(rnorm(n * p), nrow=n, ncol=p)
 X.new <- matrix(rnorm(p), nrow=1, ncol=p)
 y <- as.numeric(X[, 1:s0] %*% beta[1:s0]) + sqrt(sig2) * rnorm(n)
 
-res<-ebreg(y, X, X.new, alpha=.99, gam=.005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, TRUE, FALSE, .95)
+res<-ebreg(y, X, X.new, TRUE, alpha=.99, gam=.005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, TRUE, FALSE, .95)
 ```
+
+<img src="man/figures/README-example-1.png" width="100%" />

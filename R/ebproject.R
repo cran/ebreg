@@ -13,6 +13,7 @@
 #' @param y vector of response variables for regression
 #' @param X matrix of predictor variables
 #' @param XX vector to predict outcome variable, if pred=TRUE
+#' @param standardized logical. If TRUE, the data provided has already been standardized
 #' @param alpha numeric value between 0 and 1, likelihood fraction
 #' @param gam numeric value between 0 and 1, conditional prior precision parameter
 #' @param sig2 numeric value for error variance. If NULL (default), variance is estimated from data
@@ -63,7 +64,8 @@
 #' X.new <- matrix(rnorm(p), nrow=1, ncol=p)
 #' y <- as.numeric(X[, 1:s0] %*% beta[1:s0]) + sqrt(sig2) * rnorm(n)
 #'
-#' o<-ebreg(y, X, X.new, .99, .005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, TRUE, FALSE, .95)
+#' o<-ebreg(y, X, X.new, TRUE, .99, .005, NULL, FALSE, igpar=c(0.01, 4),
+#' log.f, M=5000, TRUE, FALSE, .95)
 #'
 #' incl.pr <- o$incl.prob
 #' plot(incl.pr, xlab="Variable Index", ylab="Inclusion Probability", type="h", ylim=c(0,1))
@@ -76,20 +78,24 @@
 #'
 #'
 #' @export
-ebreg <- function(y, X, XX, alpha, gam, sig2, prior=TRUE, igpar, log.f, M, sample.beta=FALSE, pred=FALSE, conf.level=.95) {
+ebreg <- function(y, X, XX, standardized=TRUE, alpha, gam, sig2, prior=TRUE, igpar,
+                  log.f, M, sample.beta=FALSE, pred=FALSE, conf.level=.95) {
 
   n <- nrow(X)
   p <- ncol(X)
   d <- nrow(XX)
   Xbar <- colMeans(X)
   ybar <- mean(y)
-  X <- X - Xbar
-  y <- y - ybar
-  XX <- XX - Xbar
+
+  if(!standardized){
+    X <- t(t(X) - Xbar)
+    y <- y - ybar
+    XX <- t(t(XX) - Xbar)
+  }
 
   o.lars <- lars(X, y, normalize=FALSE, intercept=FALSE, use.Gram=FALSE)
-  cv <- cv.lars(X, y, plot.it=FALSE, se=FALSE, normalize=FALSE, intercept=FALSE, use.Gram=FALSE)
-  b.lasso <- coef(o.lars, s=cv$index[which.min(cv$cv)], mode="fraction")
+  cv <- cv.lars(X, y, plot.it=T, se=FALSE, normalize=FALSE, intercept=FALSE, use.Gram=FALSE)
+  b.lasso <- coef(o.lars, s=cv$index[which.min(cv$cv[1:ceiling(p/2)])], mode="fraction")
   S <- as.numeric(b.lasso != 0)
   B <- round(0.2 * M)
   bb <- if(sample.beta) matrix(0, nrow=B + M, ncol=p) else NULL
@@ -174,9 +180,13 @@ ebreg <- function(y, X, XX, alpha, gam, sig2, prior=TRUE, igpar, log.f, M, sampl
       beta.mean <- colMeans(bb)
       CI <- apply(bb, 2, function(x) quantile(x, probs=c(level.low, level.high)))
     }
-    if(pred) PI <- apply(YY, 2, function(x) quantile(x, probs=c(level.low, level.high)))
+    if(pred) {
+      PI <- apply(YY, 2, function(x) quantile(x, probs=c(level.low, level.high)))
+      Yhat <- colMeans(prediction)
+    }
+    else{Yhat <- NULL}
     incl.prob <- colMeans(SS)
-    return(list(beta=bb, beta.mean=beta.mean, ynew=YY, ynew.mean=colMeans(prediction), S=SS[-(1:B),], incl.prob=incl.prob,
+    return(list(beta=bb, beta.mean=beta.mean, ynew=YY, ynew.mean=Yhat, S=SS[-(1:B),], incl.prob=incl.prob,
                 sig2 = NULL, PI=PI, CI=CI))
   }
 
@@ -302,7 +312,7 @@ get.lm.stuff <- function(S, y, X) {
   }
   else{
     X.S <- as.matrix(X[, S > 0])
-    o <- lm.fit(X.S, y, singular.ok = FALSE)
+    o <- lm.fit(100*X.S, y, singular.ok = FALSE)
     sse <- sum(o$residuals**2)
     b.hat <- o$coefficients
     V <- chol2inv(qr.R(o$qr))

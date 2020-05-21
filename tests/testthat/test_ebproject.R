@@ -27,11 +27,11 @@ test_that('the right things are NULL when pred is FALSE', {
   X.new <- matrix(rnorm(p), nrow=1, ncol=p) %*% sqR
   y <- as.numeric(X[, beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(n)
   y.new <- as.numeric(X.new[,beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(1)
-  o1 <- ebreg(y, X, X.new, alpha=.99, gam=.005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, sample.beta=TRUE)
+  o1 <- ebreg(y, X, X.new, TRUE, alpha=.99, gam=.005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, sample.beta=TRUE)
 
-  expect_that( is.null(o1$ynew), is_true())
-  expect_that( is.null(o1$ynew.mean), is_true())
-  expect_that( is.null(o1$PI), is_true())
+  expect_true( is.null(o1$ynew))
+  expect_true( is.null(o1$ynew.mean))
+  expect_true( is.null(o1$PI))
 
 })
 
@@ -54,11 +54,11 @@ test_that('the right things are NULL when sample.beta is FALSE', {
   X.new <- matrix(rnorm(p), nrow=1, ncol=p) %*% sqR
   y <- as.numeric(X[, beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(n)
   y.new <- as.numeric(X.new[,beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(1)
-  o1 <- ebreg(y, X, X.new, alpha=.99, gam=.005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, pred=TRUE)
+  o1 <- ebreg(y, X, X.new, TRUE, alpha=.99, gam=.005, NULL, FALSE, igpar=c(0.01, 4), log.f, M=5000, pred=TRUE)
 
-  expect_that( is.null(o1$beta), is_true())
-  expect_that( is.null(o1$beta.mean), is_true())
-  expect_that( is.null(o1$CI), is_true())
+  expect_true( is.null(o1$beta))
+  expect_true( is.null(o1$beta.mean))
+  expect_true( is.null(o1$CI))
 
 })
 
@@ -81,9 +81,9 @@ test_that('the right things are NULL when prior is TRUE', {
   X.new <- matrix(rnorm(p), nrow=1, ncol=p) %*% sqR
   y <- as.numeric(X[, beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(n)
   y.new <- as.numeric(X.new[,beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(1)
-  o1 <- ebreg(y, X, X.new, alpha=.99, gam=.005, NULL, TRUE, igpar=c(0.01, 4), log.f, M=5000, pred=TRUE)
+  o1 <- ebreg(y, X, X.new, TRUE, alpha=.99, gam=.005, NULL, TRUE, igpar=c(0.01, 4), log.f, M=5000, pred=TRUE)
 
-  expect_that( is.null(o1$sig2), is_true())
+  expect_true( is.null(o1$sig2))
 })
 
 
@@ -107,10 +107,10 @@ test_that('returned values have the right size', {
   X.new <- matrix(rnorm(p), nrow=1, ncol=p) %*% sqR
   y <- as.numeric(X[, beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(n)
   y.new <- as.numeric(X.new[,beta.index] %*% beta[beta.index]) + sqrt(sig2) * rnorm(1)
-  o1 <- ebreg(y, X, X.new, alpha=.99, gam=.005, NULL, TRUE, igpar=c(0.01, 4), log.f, M=M, pred=TRUE, sample.beta=TRUE)
+  o1 <- ebreg(y, X, X.new, TRUE, alpha=.99, gam=.005, NULL, TRUE, igpar=c(0.01, 4), log.f, M=M, pred=TRUE, sample.beta=TRUE)
 
-  expect_that(ncol(o1$beta)==p, is_true())
-  expect_that(nrow(o1$beta)==M, is_true())
-  expect_that(length(o1$beta.mean)==p, is_true())
+  expect_true(ncol(o1$beta)==p)
+  expect_true(nrow(o1$beta)==M)
+  expect_true(length(o1$beta.mean)==p)
 
 })
