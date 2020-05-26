@@ -14,11 +14,11 @@
 #' @param X matrix of predictor variables
 #' @param XX vector to predict outcome variable, if pred=TRUE
 #' @param standardized logical. If TRUE, the data provided has already been standardized
-#' @param alpha numeric value between 0 and 1, likelihood fraction
-#' @param gam numeric value between 0 and 1, conditional prior precision parameter
+#' @param alpha numeric value between 0 and 1, likelihood fraction. Default is 0.99
+#' @param gam numeric value between 0 and 1, conditional prior precision parameter. Default is 0.005
 #' @param sig2 numeric value for error variance. If NULL (default), variance is estimated from data
 #' @param prior logical. If TRUE, a prior is used for the error variance
-#' @param igpar the parameters for the inverse gamma prior on the error variance
+#' @param igpar the parameters for the inverse gamma prior on the error variance. Default is (0.01,4)
 #' @param log.f log of the prior for the model size
 #' @param M integer value to indicate the Monte Carlo sample size (burn-in of size 0.2 * M automatically added)
 #' @param sample.beta logical. If TRUE, samples of beta are obtained
@@ -78,7 +78,7 @@
 #'
 #'
 #' @export
-ebreg <- function(y, X, XX, standardized=TRUE, alpha, gam, sig2, prior=TRUE, igpar,
+ebreg <- function(y, X, XX, standardized=TRUE, alpha=0.99, gam=0.005, sig2, prior=TRUE, igpar=c(0.01, 4),
                   log.f, M, sample.beta=FALSE, pred=FALSE, conf.level=.95) {
 
   n <- nrow(X)
@@ -88,15 +88,22 @@ ebreg <- function(y, X, XX, standardized=TRUE, alpha, gam, sig2, prior=TRUE, igp
   ybar <- mean(y)
 
   if(!standardized){
-    X <- t(t(X) - Xbar)
-    y <- y - ybar
-    XX <- t(t(XX) - Xbar)
+    X <- scale(X, center=T, scale=F)
+    y <- scale(y, center=T, scale=F)
+    XX <- scale(XX, center=Xbar, scale=F)
   }
 
   o.lars <- lars(X, y, normalize=FALSE, intercept=FALSE, use.Gram=FALSE)
   cv <- cv.lars(X, y, plot.it=T, se=FALSE, normalize=FALSE, intercept=FALSE, use.Gram=FALSE)
   b.lasso <- coef(o.lars, s=cv$index[which.min(cv$cv[1:ceiling(p/2)])], mode="fraction")
+
   S <- as.numeric(b.lasso != 0)
+  X.S <- X[, S > 0]
+
+  if(min(eigen(t(X.S)%*%X.S, only.values=TRUE)$values)<=1e-10){
+    S[sample(which(S==1), round(min(sum(S)/2, n/2)))] <- 0
+  }
+
   B <- round(0.2 * M)
   bb <- if(sample.beta) matrix(0, nrow=B + M, ncol=p) else NULL
   SS <- matrix(0, nrow=B + M, ncol=p)
@@ -312,7 +319,7 @@ get.lm.stuff <- function(S, y, X) {
   }
   else{
     X.S <- as.matrix(X[, S > 0])
-    o <- lm.fit(100*X.S, y, singular.ok = FALSE)
+    o <- lm.fit(100*X.S, y, singular.ok = T)
     sse <- sum(o$residuals**2)
     b.hat <- o$coefficients
     V <- chol2inv(qr.R(o$qr))
