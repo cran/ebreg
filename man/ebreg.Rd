@@ -4,9 +4,22 @@
 \alias{ebreg}
 \title{Implements the empirical Bayes method in high-dimensional linear model setting for inference and prediction}
 \usage{
-ebreg(y, X, XX, standardized = TRUE, alpha, gam, sig2, prior = TRUE,
-  igpar, log.f, M, sample.beta = FALSE, pred = FALSE,
-  conf.level = 0.95)
+ebreg(
+  y,
+  X,
+  XX,
+  standardized = TRUE,
+  alpha = 0.99,
+  gam = 0.005,
+  sig2,
+  prior = TRUE,
+  igpar = c(0.01, 4),
+  log.f,
+  M,
+  sample.beta = FALSE,
+  pred = FALSE,
+  conf.level = 0.95
+)
 }
 \arguments{
 \item{y}{vector of response variables for regression}
@@ -17,15 +30,15 @@ ebreg(y, X, XX, standardized = TRUE, alpha, gam, sig2, prior = TRUE,
 
 \item{standardized}{logical. If TRUE, the data provided has already been standardized}
 
-\item{alpha}{numeric value between 0 and 1, likelihood fraction}
+\item{alpha}{numeric value between 0 and 1, likelihood fraction. Default is 0.99}
 
-\item{gam}{numeric value between 0 and 1, conditional prior precision parameter}
+\item{gam}{numeric value between 0 and 1, conditional prior precision parameter. Default is 0.005}
 
 \item{sig2}{numeric value for error variance. If NULL (default), variance is estimated from data}
 
 \item{prior}{logical. If TRUE, a prior is used for the error variance}
 
-\item{igpar}{the parameters for the inverse gamma prior on the error variance}
+\item{igpar}{the parameters for the inverse gamma prior on the error variance. Default is (0.01,4)}
 
 \item{log.f}{log of the prior for the model size}
 
@@ -41,8 +54,8 @@ ebreg(y, X, XX, standardized = TRUE, alpha, gam, sig2, prior = TRUE,
 A list with components
 \itemize{
  \item beta - matrix with rows containing sampled beta, if sample.beta=TRUE, otherwise NULL
- \item beta.mean - vector containing the posterior mean of sampled beta, if sample.beta=TRUE, otherwise NULL
- \item ynew - matrix containing predicted reponses, if pred=TRUE, otherwise NULL
+ \item beta.mean - vector containing the posterior mean of beta, if sample.beta=TRUE, otherwise NULL
+ \item ynew - matrix containing predicted responses, if pred=TRUE, otherwise NULL
  \item ynew.mean - vector containing the predictions for the predictor values tested, XX, if pred=TRUE, otherwise NULL
  \item S - matrix with rows containing the sampled models
  \item incl.prob - vector containing inclusion probabilities of the predictors
@@ -89,7 +102,6 @@ log.f, M=5000, TRUE, FALSE, .95)
 
 incl.pr <- o$incl.prob
 plot(incl.pr, xlab="Variable Index", ylab="Inclusion Probability", type="h", ylim=c(0,1))
-
 
 }
 \references{

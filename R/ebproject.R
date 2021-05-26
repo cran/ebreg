@@ -28,8 +28,8 @@
 #' @return A list with components
 #' \itemize{
 #'  \item beta - matrix with rows containing sampled beta, if sample.beta=TRUE, otherwise NULL
-#'  \item beta.mean - vector containing the posterior mean of sampled beta, if sample.beta=TRUE, otherwise NULL
-#'  \item ynew - matrix containing predicted reponses, if pred=TRUE, otherwise NULL
+#'  \item beta.mean - vector containing the posterior mean of beta, if sample.beta=TRUE, otherwise NULL
+#'  \item ynew - matrix containing predicted responses, if pred=TRUE, otherwise NULL
 #'  \item ynew.mean - vector containing the predictions for the predictor values tested, XX, if pred=TRUE, otherwise NULL
 #'  \item S - matrix with rows containing the sampled models
 #'  \item incl.prob - vector containing inclusion probabilities of the predictors
@@ -70,7 +70,7 @@
 #' incl.pr <- o$incl.prob
 #' plot(incl.pr, xlab="Variable Index", ylab="Inclusion Probability", type="h", ylim=c(0,1))
 #'
-#'
+#' @importFrom Rdpack reprompt
 #' @references
 #' \insertRef{martin.mess.walker.eb}{ebreg}
 #'
@@ -106,6 +106,7 @@ ebreg <- function(y, X, XX, standardized=TRUE, alpha=0.99, gam=0.005, sig2, prio
 
   B <- round(0.2 * M)
   bb <- if(sample.beta) matrix(0, nrow=B + M, ncol=p) else NULL
+  bb.mean <- matrix(0, nrow=B + M, ncol=p)
   SS <- matrix(0, nrow=B + M, ncol=p)
   ss <- numeric(B + M)
   ii <- integer(B + M)
@@ -175,8 +176,11 @@ ebreg <- function(y, X, XX, standardized=TRUE, alpha=0.99, gam=0.005, sig2, prio
         sq.v <- sqrt(sigma2.samp/(alpha + gam))
 
         b <- numeric(p)
+        b.mean <- numeric(p)
         b[S > 0] <- out[[i]]$b.hat + sq.v * out[[i]]$U %*% rnorm(s)
+        b.mean[S > 0] <- out[[i]]$b.hat
         bb[m,] <- b
+        bb.mean[m,] <- b.mean
 
       }
     }
@@ -184,7 +188,7 @@ ebreg <- function(y, X, XX, standardized=TRUE, alpha=0.99, gam=0.005, sig2, prio
 
     if(sample.beta) {
       bb <- bb[-(1:B),]
-      beta.mean <- colMeans(bb)
+      beta.mean <- colMeans(bb.mean[-(1:B),])
       CI <- apply(bb, 2, function(x) quantile(x, probs=c(level.low, level.high)))
     }
     if(pred) {
@@ -259,15 +263,17 @@ ebreg <- function(y, X, XX, standardized=TRUE, alpha=0.99, gam=0.005, sig2, prio
       if(sample.beta) {
 
         b <- numeric(p)
+        b.mean <- numeric(p)
         b[S > 0] <- out[[i]]$b.hat + sq.v * out[[i]]$U %*% rnorm(s)
+        b.mean[S > 0] <- out[[i]]$b.hat
         bb[m,] <- b
-
+        bb.mean[m,] <- b.mean
       }
 
     }
     if(sample.beta) {
       bb <- bb[-(1:B),]
-      beta.mean <- colMeans(bb)
+      beta.mean <- colMeans(bb.mean[-(1:B),])
       CI <- apply(bb, 2, function(x) quantile(x, probs=c(level.low, level.high)))
     }
     if(pred) {
@@ -319,12 +325,12 @@ get.lm.stuff <- function(S, y, X) {
   }
   else{
     X.S <- as.matrix(X[, S > 0])
-    o <- lm.fit(100*X.S, y, singular.ok = T)
+    o <- lm.fit(X.S, y, singular.ok = T)
     sse <- sum(o$residuals**2)
     b.hat <- o$coefficients
     V <- chol2inv(qr.R(o$qr))
     U <- chol(V)
-    return(list(sse=sse, b.hat=b.hat, U=U))
+    return(list(sse=sse, b.hat=b.hat, U=t(U)))
 
   }
 }

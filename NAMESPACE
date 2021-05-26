@@ -3,3 +3,4 @@
 export(ebreg)
 import(lars)
 import(stats)
+importFrom(Rdpack,reprompt)
